@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const PriceModel = require('./models/pricelist');
+const Products = require('./models/products');
+const Categories = require('./models/categories');
 
 const app = express();
 
