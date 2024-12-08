@@ -3,84 +3,83 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-// Import models
-const Products = require('./models/products');
-const Category = require('./models/categories');
+const products = require('./models/products');
+const category = require('./models/categories');
+const { ServerHeartbeatSucceededEvent } = require('mongodb');
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-  })
-);
+	cors(
+	{
+		origin: 'http://localhost:5173',
+		methods: ['GET', 'POST', 'PUT', 'DELETE'],
+		credentials: true,
+	})
+)
+
+// ------------------------------------------------------------------------------------------------------------------
 
 // Connect to MongoDB
+
 mongoose
-  .connect(process.env.DATABASE_URL)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('Failed to connect to MongoDB:', err));
+.connect(process.env.DATABASE_URL)
+.then(() => console.log('Connected to MongoDB'))
+.catch((err) => console.error('Failed to Connect to MongoDB:', err));
 
-//----------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------
 
-// Route to fetch all products
-app.get('/product', async (req, res) => {
-  try {
-    const products = await Products.find(); // Fetch all products
-    res.json(products);
-  } catch (err) {
-    console.error('Error fetching products:', err.message);
-    res.status(500).json({ message: 'Error fetching products' });
-  }
-});
+// Start the 
 
-// Route to fetch subcategories based on a product
-app.post('/subcategory', async (req, res) => {
-  try {
-    const { product_name } = req.body;
+const port = process.env.PORT || 5000;
 
+app.listen(port, () => 
+{
+	console.log(`Server running on port ${port}`);
+})
 
-    // Find the product by name
-    const product = await Products.findOne({ product_name });
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+// ------------------------------------------------------------------------------------------------------------------
 
-    const productId = product.product_id;
+// Route to Fetch All Products
 
+app.get('/product', async (req, res) => 
+{
+	try 
+	{
+		const allProducts = await products.find(); 
+		res.json(allProducts);
+	} 
+	catch (err) {
+		console.error('Error Fetching Products:', err.message);
+		res.status(500).json({ message: 'Error Fetching Products' });
+	}
+})
 
-    const categories = await Category.find(
-      // { product_id: productId }, // Query the Category collection with product_id: 1
-      // 'sub_category' // Select only the `sub_category` field
-    );
+// ------------------------------------------------------------------------------------------------------------------
 
-    console.log(categories)
+// Route to Fetch Sub Categories based on a Product
 
-    // Check if categories were found and log them
-    if (categories.length > 0) {
-      console.log('Subcategories for Product ID 1:', categories);
-    } else {
-      console.log('No subcategories found for Product ID 1');
-    }
+app.post('/subcategory', async (req, res) => 
+{
+	try 
+	{
+		const { product_name } = req.body;
 
+		const product = await products.findOne({ product_name });
 
-    const subCategories = categories.map((category) => category.sub_category);
+		const productId = product.product_id;
 
-    res.status(200).json({ sub_categories: subCategories });
-  } catch (error) {
-    console.error('Error in subcategory route:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+		const categories = await category.find({ product_id: productId }, 'sub_category' )
+
+		const subCategories = [...new Set(categories.map((category) => category.sub_category))]
+
+		res.status(200).json({ sub_categories: subCategories });
+	} 
+	catch (error) {
+		console.error('Error in Subcategory Route:', error);
+		res.status(500).json({ error: 'Internal Server Error' });
+	}
+})
 
 //----------------------------------------------------------------------------------------------
-
-// Start the server
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
