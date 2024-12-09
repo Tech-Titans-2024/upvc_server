@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema(
 {
     product_id: {
-        type: String,
+        type: Number,
         required: true,
         unique: true,
     },
@@ -13,6 +13,6 @@ const productSchema = new mongoose.Schema(
     }
 })
 
-const Product = mongoose.model('Product', productSchema);
+const product = mongoose.model('product', productSchema);
 
-module.exports = Product;
+module.exports = product;

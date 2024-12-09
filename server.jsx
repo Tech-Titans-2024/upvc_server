@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const products = require('./models/products');
-const category = require('./models/categories');
+const category = require('./models/category');
 const { ServerHeartbeatSucceededEvent } = require('mongodb');
 
 const app = express();
@@ -65,7 +65,7 @@ app.post('/subcategory', async (req, res) =>
 	try 
 	{
 		const { product_name } = req.body;
-
+		console.log(product_name)
 		const product = await products.findOne({ product_name });
 
 		const productId = product.product_id;
@@ -73,6 +73,9 @@ app.post('/subcategory', async (req, res) =>
 		const categories = await category.find({ product_id: productId }, 'sub_category' )
 
 		const subCategories = [...new Set(categories.map((category) => category.sub_category))]
+		const type = await category.find({sub_categories: subCategories})
+		console.log(type)
+		console.log(categories)
 
 		res.status(200).json({ sub_categories: subCategories });
 	} 
