@@ -112,4 +112,17 @@ app.post('/type', async (req, res) =>
 	})
 	
 
+//----------------------------------------------------------------------------------------------
 
+app.get('/fetchProduct', async (req, res) => 
+{
+	try 
+	{
+		const allProduct = await products.find();
+		res.json(allProduct)
+	} 
+	catch (error) {
+		console.error('Error in Subcategory Route:', error);
+		res.status(500).json({ error: 'Internal Server Error' });
+	}
+})
