@@ -4,19 +4,20 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const products = require('./models/products');
-const category = require('./models/category');
+// const category = require('./models/category');
 const { ServerHeartbeatSucceededEvent } = require('mongodb');
+const category = require('./models/category');
 
 const app = express();
 
 app.use(express.json());
 app.use(
 	cors(
-	{
-		origin: 'http://localhost:5173',
-		methods: ['GET', 'POST', 'PUT', 'DELETE'],
-		credentials: true,
-	})
+		{
+			origin: 'http://localhost:5173',
+			methods: ['GET', 'POST', 'PUT', 'DELETE'],
+			credentials: true,
+		})
 )
 
 // ------------------------------------------------------------------------------------------------------------------
@@ -24,9 +25,9 @@ app.use(
 // Connect to MongoDB
 
 mongoose
-.connect(process.env.DATABASE_URL)
-.then(() => console.log('Connected to MongoDB'))
-.catch((err) => console.error('Failed to Connect to MongoDB:', err));
+	.connect(process.env.DATABASE_URL)
+	.then(() => console.log('Connected to MongoDB'))
+	.catch((err) => console.error('Failed to Connect to MongoDB:', err));
 
 // ------------------------------------------------------------------------------------------------------------------
 
@@ -34,8 +35,7 @@ mongoose
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => 
-{
+app.listen(port, () => {
 	console.log(`Server running on port ${port}`);
 })
 
@@ -43,33 +43,33 @@ app.listen(port, () =>
 
 // Route to Fetch All Products
 
-app.get('/product', async (req, res) => 
-{
-	try 
-	{
-		const allProducts = await products.find(); 
-		res.json(allProducts);
-	} 
-	catch (err) {
+app.get('/product', async (req, res) => {
+	try {
+		const allProducts = await products.find(); // Fetch all products
+		console.log(allProducts);
+		if (allProducts.length === 0) {
+			return res.status(404).json({ message: 'No products found' });
+		}
+		res.json(allProducts); // Send the products
+	} catch (err) {
 		console.error('Error Fetching Products:', err.message);
 		res.status(500).json({ message: 'Error Fetching Products' });
 	}
-})
+});
+
 
 // ------------------------------------------------------------------------------------------------------------------
 
 // Route to Fetch Sub Categories based on a Product
 
-app.post('/subcategory', async (req, res) => 
-{
-	try 
-	{
+app.post('/subcategory', async (req, res) => {
+	try {
 		const { product_name } = req.body;
 		const product = await products.findOne({ product_name });
 
 		const productId = product.product_id;
 
-		const categories = await category.find({ product_id: productId }, 'category' )
+		const categories = await category.find({ product_id: productId }, 'category')
 
 
 
@@ -81,7 +81,7 @@ app.post('/subcategory', async (req, res) =>
 		// console.log(categories)
 
 		res.status(200).json({ sub_categories: subCategories });
-	} 
+	}
 	catch (error) {
 		console.error('Error in Subcategory Route:', error);
 		res.status(500).json({ error: 'Internal Server Error' });
@@ -92,37 +92,52 @@ app.post('/subcategory', async (req, res) =>
 
 // Route to Fetch Type based on a sub category
 
-app.post('/type', async (req, res) => 
-	{
-		try 
-		{
-			const { sub_category } = req.body;
-			
-	
-			const type = await category.find({ category: sub_category }, 'type' )
-
-			// console.log(type);
-	
-			res.status(200).json({ type: type });
-		} 
-		catch (error) {
-			console.error('Error in Subcategory Route:', error);
-			res.status(500).json({ error: 'Internal Server Error' });
-		}
-	})
-	
-
-//----------------------------------------------------------------------------------------------
-
-app.get('/fetchProduct', async (req, res) => 
-{
-	try 
-	{
-		const allProduct = await products.find();
-		res.json(allProduct)
-	} 
+app.post('/type', async (req, res) => {
+	try {
+		const { category_name, product } = req.body;
+		console.log(category_name, "gftd", product)
+		const type = await category.find({ category_name: category_name, product_id: product }, 'type')
+		console.log(type);
+		res.status(200).json({ type: type });
+	}
 	catch (error) {
 		console.error('Error in Subcategory Route:', error);
 		res.status(500).json({ error: 'Internal Server Error' });
 	}
 })
+
+
+//--------------------------------------------------------------------------------
+app.get('/productdetails', async (req, res) => {
+	try {
+		const { productName } = req.query; 
+		const productDetails = await products.findOne({ productname: productName });
+
+		if (productDetails) {
+			res.json(productDetails); 
+		} else {
+			res.status(404).json({ message: 'Product not found' });
+		}
+	} catch (err) {
+		console.error("Error fetching product details:", err);
+		res.status(500).json({ message: 'Internal Server Error' });
+	}
+});
+
+
+//--------------------------------------------------------------------------------
+app.post('/product', async (req, res) => {
+	try {
+		const { product_id } = req.body;
+		console.log("Product ID:", product_id);
+		const categories = await category.find({ product_id });
+		if (categories.length === 0) {
+			return res.status(404).json({ message: "No categories found for the given product_id" });
+		}
+		res.json({ categories });
+	} catch (err) {
+		console.log("Error:", err);
+		res.status(500).json({ message: "Internal Server Error" });
+	}
+});
+
