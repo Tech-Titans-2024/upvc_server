@@ -108,11 +108,12 @@ app.post('/type', async (req, res) => {
 
 
 //--------------------------------------------------------------------------------
-app.get('/productdetails', async (req, res) => {
+app.get('/productdetails/:pid', async (req, res) => {
 	try {
-		const { productName } = req.query; 
-		const productDetails = await products.findOne({ productname: productName });
-
+		const { pid } = req.params; 
+		console.log("productName", pid)
+		const productDetails = await products.findOne({ product_id: pid });
+		console.log("productDetails", productDetails)
 		if (productDetails) {
 			res.json(productDetails); 
 		} else {
