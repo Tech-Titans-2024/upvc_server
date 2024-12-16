@@ -46,7 +46,7 @@ app.listen(port, () => {
 app.get('/product', async (req, res) => {
 	try {
 		const allProducts = await products.find(); // Fetch all products
-		console.log(allProducts);
+		// console.log(allProducts);
 		if (allProducts.length === 0) {
 			return res.status(404).json({ message: 'No products found' });
 		}
@@ -95,9 +95,9 @@ app.post('/subcategory', async (req, res) => {
 app.post('/type', async (req, res) => {
 	try {
 		const { category_name, product } = req.body;
-		console.log(category_name, "gftd", product)
+		// console.log(category_name, "gftd", product)
 		const type = await category.find({ category_name: category_name, product_id: product }, 'type')
-		console.log(type);
+		// console.log(type);
 		res.status(200).json({ type: type });
 	}
 	catch (error) {
@@ -111,9 +111,9 @@ app.post('/type', async (req, res) => {
 app.get('/productdetails/:pid', async (req, res) => {
 	try {
 		const { pid } = req.params; 
-		console.log("productName", pid)
+		// console.log("productName", pid)
 		const productDetails = await products.findOne({ product_id: pid });
-		console.log("productDetails", productDetails)
+		// console.log("productDetails", productDetails)
 		if (productDetails) {
 			res.json(productDetails); 
 		} else {
@@ -130,7 +130,7 @@ app.get('/productdetails/:pid', async (req, res) => {
 app.post('/product', async (req, res) => {
 	try {
 		const { product_id } = req.body;
-		console.log("Product ID:", product_id);
+		// console.log("Product ID:", product_id);
 		const categories = await category.find({ product_id });
 		if (categories.length === 0) {
 			return res.status(404).json({ message: "No categories found for the given product_id" });
@@ -141,4 +141,19 @@ app.post('/product', async (req, res) => {
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 });
+//--------------------------------------------------------------------------------
+//Price
 
+app.get('/price', async(req, res)=>{
+	try
+	{
+		const products = await category.find();
+		res.json(products)
+
+	}
+	catch(error)
+	{
+		console.log(error)
+
+	}
+})
