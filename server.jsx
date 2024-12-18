@@ -7,6 +7,7 @@ const products = require('./models/products');
 // const category = require('./models/category');
 const { ServerHeartbeatSucceededEvent } = require('mongodb');
 const category = require('./models/category');
+const product = require('./models/products');
 
 const app = express();
 
@@ -156,4 +157,61 @@ app.get('/price', async(req, res)=>{
 		console.log(error)
 
 	}
+})
+
+
+
+//----------------------------------------------------------------------------------------------
+
+// Fetch Products
+
+app.get('/productDetails', async (req, res) => {
+	
+	try {
+		const products = await product.find();
+		res.json(products);
+	}
+	catch(error) {
+		console.error("Error fetching Products : ", error);
+		res.status(500).json({ message: 'Internal Server Error' });
+	}
+
+})
+
+//----------------------------------------------------------------------------------------------
+
+// Fetch Types
+
+app.get('/doorTypes', async (req, res) => {
+	
+	try {
+		const productId = await products.findOne({ product_name: 'Door' });		
+		const productTypes = await category.find({ product_id: productId.product_id },'category');
+		const uniqueProductTypes = [...new Set(productTypes.map((category) => category.category))]
+		res.json(uniqueProductTypes);
+	}
+	catch(error) {
+		console.error("Error fetching Types : ", error);
+		res.status(500).json({ message: 'Internal Server Error' });
+	}
+
+})
+
+//----------------------------------------------------------------------------------------------
+
+// Fetch Varients for Selected Type
+
+app.post('/varientTypes', async (req, res) => {
+
+	const { selected_type } = req.body;
+	
+	try {	
+		const typesVarients = await category.find({ category : selected_type },'type');
+		res.json(typesVarients);
+	}
+	catch(error) {
+		console.error("Error fetching Types : ", error);
+		res.status(500).json({ message: 'Internal Server Error' });
+	}
+
 })
