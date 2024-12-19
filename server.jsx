@@ -181,37 +181,60 @@ app.get('/productDetails', async (req, res) => {
 //----------------------------------------------------------------------------------------------
 
 // Fetch Types
-
+// Fetch Types for Door, Window, and Louver
 app.get('/doorTypes', async (req, res) => {
-	
-	try {
-		const productId = await products.findOne({ product_name: 'Door' });		
-		const productTypes = await category.find({ product_id: productId.product_id },'category');
-		const uniqueProductTypes = [...new Set(productTypes.map((category) => category.category))]
-		res.json(uniqueProductTypes);
-	}
-	catch(error) {
-		console.error("Error fetching Types : ", error);
-		res.status(500).json({ message: 'Internal Server Error' });
-	}
+    try {
+        const productId = await products.findOne({ product_name: 'Door' });
+        const productTypes = await category.find({ product_id: productId.product_id }, 'category');
+        const uniqueProductTypes = [...new Set(productTypes.map((category) => category.category))];
+        res.json(uniqueProductTypes);
+    } catch (error) {
+        console.error("Error fetching Door Types : ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
-})
+app.get('/windowTypes', async (req, res) => {
+    try {
+        const productId = await products.findOne({ product_name: 'Window' });
+        const productTypes = await category.find({ product_id: productId.product_id }, 'category');
+        const uniqueProductTypes = [...new Set(productTypes.map((category) => category.category))];
+        res.json(uniqueProductTypes);
+    } catch (error) {
+        console.error("Error fetching Window Types : ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
-//----------------------------------------------------------------------------------------------
+app.get('/louverTypes', async (req, res) => {
+    try {
+        const productId = await products.findOne({ product_name: 'Louver' });
+        const productTypes = await category.find({ product_id: productId.product_id }, 'category');
+        const uniqueProductTypes = [...new Set(productTypes.map((category) => category.category))];
+        res.json(uniqueProductTypes);
+    } catch (error) {
+        console.error("Error fetching Louver Types : ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
-// Fetch Varients for Selected Type
-
+// Fetch Varients for Door, Window, and Louver
 app.post('/varientTypes', async (req, res) => {
+    const { selected_type, selected_category } = req.body;
 
-	const { selected_type } = req.body;
-	
-	try {	
-		const typesVarients = await category.find({ category : selected_type },'type');
-		res.json(typesVarients);
-	}
-	catch(error) {
-		console.error("Error fetching Types : ", error);
-		res.status(500).json({ message: 'Internal Server Error' });
-	}
+    try {
+        let varientTypes = [];
+        if (selected_category === 'Door') {
+            varientTypes = await category.find({ category: selected_type }, 'type');
+        } else if (selected_category === 'Window') {
+            varientTypes = await category.find({ category: selected_type }, 'type');
+        } else if (selected_category === 'Louver') {
+            varientTypes = await category.find({ category: selected_type }, 'type');
+        }
 
-})
+        res.json(varientTypes);
+    } catch (error) {
+        console.error("Error fetching Variant Types: ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
