@@ -208,15 +208,20 @@ app.get('/windowTypes', async (req, res) => {
 
 app.get('/louverTypes', async (req, res) => {
     try {
-        const productId = await products.findOne({ product_name: 'Louver' });
-        const productTypes = await category.find({ product_id: productId.product_id }, 'category');
-        const uniqueProductTypes = [...new Set(productTypes.map((category) => category.category))];
+        const productId = await products.findOne({ product_name: 'Louvers' });
+		console.log(productId)
+        const productTypes = await category.find({ product_id: productId.product_id }, 'type');
+        const uniqueProductTypes = [...new Set(productTypes.map((type) => type.type))];
+		console.log(uniqueProductTypes)
         res.json(uniqueProductTypes);
     } catch (error) {
         console.error("Error fetching Louver Types : ", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+
+
 
 // Fetch Varients for Door, Window, and Louver
 app.post('/varientTypes', async (req, res) => {
