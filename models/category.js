@@ -1,23 +1,25 @@
 const mongoose = require('mongoose');
 
-const categorySchema = new mongoose.Schema(
-{
-    type_id : {
+const categorySchema = new mongoose.Schema({
+    type_id: {
         type: Number,
         required: true,
         unique: true,
     },
-    product_id : {
+    product_id: {
         type: Number,
     },
-    type : {
+    type: {
         type: String,
     },
-    varient : {
+    varient: {
+        type: String,
+    },
+    image: {
         type: String,
     }
-})
+});
 
-const category = mongoose.model('category', categorySchema);
+const Category = mongoose.model('Category', categorySchema);
 
-module.exports = category;
+module.exports = Category;
