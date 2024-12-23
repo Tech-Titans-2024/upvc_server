@@ -196,7 +196,7 @@ app.post('/pricelist', async (req, res) => {
 
     const { height, width, selectedProduct, selectedType, selectedVarient } = req.body;
     // console.log( value,name,selectedProduct,selectedType,selectedVarient," data w,h")
-    console.log(height, width, "h and wifht")
+    // console.log(height, width, "h and wifht")
 
     try {
         const productId = await product.findOne({ product_name: selectedProduct })
