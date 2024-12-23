@@ -1,4 +1,4 @@
-require('dotenv').config(); 
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -6,13 +6,13 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const product = require('./models/products');
-const Category = require('./models/category'); 
-
+const Category = require('./models/category');
+const Pricelist = require('./models/pricelist')
 const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: process.env.FRONTEND_URL, 
+    origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
@@ -28,7 +28,7 @@ app.use('/product_images', express.static(path.join(__dirname, 'product_images')
 const dbURI = process.env.DATABASE_URL;
 if (!dbURI) {
     console.error('MongoDB URI is not defined in .env file!');
-    process.exit(1); 
+    process.exit(1);
 }
 
 mongoose.connect(dbURI)
@@ -120,8 +120,8 @@ app.get('/doorTypes', async (req, res) => {
         const productTypes = await Category.find({ product_id: productId.product_id }, 'type');
         const uniqueProductTypes = [...new Set(productTypes.map((type) => type.type))];
         res.json(uniqueProductTypes);
-    } 
-	catch (error) {
+    }
+    catch (error) {
         console.error("Error fetching Door Types : ", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -135,8 +135,8 @@ app.get('/windowTypes', async (req, res) => {
         const productTypes = await Category.find({ product_id: productId.product_id }, 'type');
         const uniqueProductTypes = [...new Set(productTypes.map((type) => type.type))];
         res.json(uniqueProductTypes);
-    } 
-	catch (error) {
+    }
+    catch (error) {
         console.error("Error fetching Window Types : ", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -151,20 +151,19 @@ app.post('/varientTypes', async (req, res) => {
 
     const { selected_type, selected_category } = req.body;
 
-    try 
-	{
+    try {
         let varientTypes = [];
         if (selected_category === 'Door') {
-            varientTypes = await Category.find({ type: selected_type }, 'varient');
-        } 
-		else if (selected_category === 'Window') {
-            varientTypes = await Category.find({ type: selected_type }, 'varient');
+            varientTypes = await Category.find({ type: selected_type }, 'varient category_id');
         }
-        console.log(varientTypes)
+        else if (selected_category === 'Window') {
+            varientTypes = await Category.find({ type: selected_type },);
+        }
+        // console.log(varientTypes)
 
         res.json(varientTypes);
-    } 
-	catch (error) {
+    }
+    catch (error) {
         console.error("Error fetching Varient Types: ", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -179,13 +178,58 @@ app.get('/louverVarients', async (req, res) => {
 
     try {
         const productId = await product.findOne({ product_name: 'Louvers' });
-        const productTypes = await category.find({ product_id: productId.product_id }, 'varient');
+        const productTypes = await Category.find({ product_id: productId.product_id }, 'varient');
         const uniqueProductTypes = [...new Set(productTypes.map((varient) => varient.varient))];
         res.json(uniqueProductTypes);
-    } 
-	catch (error) {
+    }
+    catch (error) {
         console.error("Error fetching Louver Types : ", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
-	
+
+})
+
+
+//---------------------------------------------------------------------------------------------------
+
+app.post('/pricelist', async (req, res) => {
+
+    const { height, width, selectedProduct, selectedType, selectedVarient } = req.body;
+    // console.log( value,name,selectedProduct,selectedType,selectedVarient," data w,h")
+    console.log(height, width, "h and wifht")
+
+    try {
+        const productId = await product.findOne({ product_name: selectedProduct })
+        // console.log(productId.product_id);
+        // console.log("hejjeb")
+        const gategory_data = await Category.findOne({
+            product_id: productId.product_id,
+            type: selectedType,
+            varient: selectedVarient
+        });
+        console.log(gategory_data.type_id)
+        if (gategory_data) {
+            // console.log("data type",gategory_data.type_id);
+            const getPrice = await Pricelist.findOne({
+                product: gategory_data.type_id,
+                width: width,
+                height: height
+
+            })
+            if (getPrice) {
+                console.log("price",getPrice.price)
+                res.json({"data":getPrice.price})
+            }
+            else{
+                console.log("no data")
+                res.json({"data":10})
+            }
+        }
+
+        // console.log(gategory_data.type_id)
+    }
+    catch (error) {
+
+    }
+
 })

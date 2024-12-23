@@ -1,21 +1,38 @@
-// const mongoose = require('mongoose')
-// const AutoIncrement = require('mongoose-sequence')(mongoose);
+const mongoose = require('mongoose');
+const Product = require('./products');
 
-// const PriceSchema = new mongoose.Schema(
-// {
-//     s_no :  Number,
-//     p_id :  Number,
-//     pt_id :  Number,
-//     price : Number,
-//     unit: 
-//     {
-//         type: String,
-//         default: 0
-//     }   
-// })
+const priceListSchema = new mongoose.Schema({
+    ProductPrice_id: {
+        type: Number,
+        required: true,
+        unique: true,
 
-// PriceSchema.plugin(AutoIncrement, { inc_field: 's_no' });
+    },
+    product: {
+        type: Number,
+        required: true,
+    },
+    price: {
+        type: Number,
+        required: true,
+    },
+    width: {
+        type: String,
+        required: true
+    },
+    heigth: {
+        type: String,
+        required: true
+    },
+    variety: {
+        type: String,
+        required: true,
+    },
+    unit: {
+        type: String,
+        required: true,
+    },
+});
 
-// const PriceModel = mongoose.model("pricelist", PriceSchema)
-
-// module.exports = PriceModel
+const PriceList = mongoose.model('PriceList', priceListSchema);
+module.exports = PriceList;
