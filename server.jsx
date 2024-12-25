@@ -6,8 +6,8 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const product = require('./models/products');
-const Category = require('./models/category');
-const Pricelist = require('./models/pricelist')
+const category = require('./models/category');
+const pricelist = require('./models/pricelist')
 const app = express();
 
 app.use(express.json());
@@ -17,8 +17,84 @@ app.use(cors({
     credentials: true,
 }));
 
+//-------------------------------------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------------------------------
+// Fetch Types of Doors and Windows
+
+app.get('/doorTypes', async (req, res) => {
+
+    try {
+        const productId = await product.findOne({ product_name: 'Door' });
+        const productTypes = await category.find({ product_id: productId.product_id }, 'type');
+        const uniqueProductTypes = [...new Set(productTypes.map((type) => type.type))];
+        res.json(uniqueProductTypes);
+    }
+    catch (error) {
+        console.error("Error fetching Door Types : ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+})
+
+app.get('/windowTypes', async (req, res) => {
+
+    try {
+        const productId = await product.findOne({ product_name: 'Window' });
+        const productTypes = await category.find({ product_id: productId.product_id }, 'type');
+        const uniqueProductTypes = [...new Set(productTypes.map((type) => type.type))];
+        res.json(uniqueProductTypes);
+    }
+    catch (error) {
+        console.error("Error fetching Window Types : ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+})
+
+// ------------------------------------------------------------------------------------------------------------------
+
+// Fetch Varients for Door, Window
+
+app.post('/varientTypes', async (req, res) => {
+
+    const { selected_type, selected_category } = req.body;
+
+    try {
+        let varientTypes = [];
+        if (selected_category === 'Door') {
+            varientTypes = await category.find({ type: selected_type }, 'varient category_id');
+        }
+        else if (selected_category === 'Window') {
+            varientTypes = await category.find({ type: selected_type },);
+        }
+        res.json(varientTypes);
+    }
+    catch (error) {
+        console.error("Error fetching Varient Types: ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+})
+
+// ------------------------------------------------------------------------------------------------------------------
+
+// Fetch Varients for Louvers
+
+app.get('/louverVarients', async (req, res) => {
+
+    try {
+        const productId = await product.findOne({ product_name: 'Louvers' });
+        const productTypes = await category.find({ product_id: productId.product_id });
+        res.json(productTypes);
+    }
+    catch (error) {
+        console.error("Error fetching Louver Types : ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+})
+
+// ------------------------------------------------------------------------------------------------------------------
 
 // Serve static files (images)
 app.use('/product_images', express.static(path.join(__dirname, 'product_images')));
@@ -54,7 +130,7 @@ const upload = multer({ storage: storage });
 app.get('/check-typeid/:typeId', async (req, res) => {
     const { typeId } = req.params;
     try {
-        const category = await Category.findOne({ type_id: typeId });
+        const category = await category.findOne({ type_id: typeId });
         if (category) {
             return res.json({ exists: true });
         } else {
@@ -80,7 +156,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         }
 
         // Check if the type_id exists in the database
-        const category = await Category.findOne({ type_id });
+        const category = await category.findOne({ type_id });
         if (!category) {
             return res.status(400).json({ message: 'Invalid Type ID.' });
         }
@@ -108,86 +184,7 @@ app.listen(PORT, () => {
 
 
 
-//-------------------------------------------------------------------------------------------------------
 
-
-// Route to Fetch Types of Doors and Windows
-
-app.get('/doorTypes', async (req, res) => {
-
-    try {
-        const productId = await product.findOne({ product_name: 'Door' });
-        const productTypes = await Category.find({ product_id: productId.product_id }, 'type');
-        const uniqueProductTypes = [...new Set(productTypes.map((type) => type.type))];
-        res.json(uniqueProductTypes);
-    }
-    catch (error) {
-        console.error("Error fetching Door Types : ", error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-
-})
-
-app.get('/windowTypes', async (req, res) => {
-
-    try {
-        const productId = await product.findOne({ product_name: 'Window' });
-        const productTypes = await Category.find({ product_id: productId.product_id }, 'type');
-        const uniqueProductTypes = [...new Set(productTypes.map((type) => type.type))];
-        res.json(uniqueProductTypes);
-    }
-    catch (error) {
-        console.error("Error fetching Window Types : ", error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-
-})
-
-// ------------------------------------------------------------------------------------------------------------------
-
-// Fetch Varients for Door, Window
-
-app.post('/varientTypes', async (req, res) => {
-
-    const { selected_type, selected_category } = req.body;
-
-    try {
-        let varientTypes = [];
-        if (selected_category === 'Door') {
-            varientTypes = await Category.find({ type: selected_type }, 'varient category_id');
-        }
-        else if (selected_category === 'Window') {
-            varientTypes = await Category.find({ type: selected_type },);
-        }
-        // console.log(varientTypes)
-
-        res.json(varientTypes);
-    }
-    catch (error) {
-        console.error("Error fetching Varient Types: ", error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-
-})
-
-// ------------------------------------------------------------------------------------------------------------------
-
-// Fetch Varients for Louvers
-
-app.get('/louverVarients', async (req, res) => {
-
-    try {
-        const productId = await product.findOne({ product_name: 'Louvers' });
-        const productTypes = await Category.find({ product_id: productId.product_id }, 'varient');
-        const uniqueProductTypes = [...new Set(productTypes.map((varient) => varient.varient))];
-        res.json(uniqueProductTypes);
-    }
-    catch (error) {
-        console.error("Error fetching Louver Types : ", error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-
-})
 
 
 //---------------------------------------------------------------------------------------------------
@@ -195,23 +192,23 @@ app.get('/louverVarients', async (req, res) => {
 app.post('/pricelist', async (req, res) => {
 
     const { height, width, selectedProduct, selectedType, selectedVarient, brand } = req.body;
-    // console.log( value,name,selectedProduct,selectedType,selectedVarient," data w,h")
-    // console.log(height, width, "h and wifht")
+    console.log( selectedProduct,selectedType,selectedVarient," data w,h")
+    console.log(height, width, "h and wifht")
     try {
         const productId = await product.findOne({ product_name: selectedProduct })
         // console.log(productId.product_id);
         // console.log("hejjeb")
         console.log(brand, "brand");
 
-        const gategory_data = await Category.findOne({
+        const gategory_data = await category.findOne({
             product_id: productId.product_id,
             type: selectedType,
             varient: selectedVarient,
         });
         console.log(gategory_data.type_id)
         if (gategory_data) {
-            // console.log("data type",gategory_data.type_id);
-            const getPrice = await Pricelist.findOne({
+            console.log("data type",gategory_data.type_id);
+            const getPrice = await pricelist.findOne({
                 product: gategory_data.type_id,
                 width: width,
                 height: height,
@@ -228,7 +225,7 @@ app.post('/pricelist', async (req, res) => {
             }
         }
 
-        // console.log(gategory_data.type_id)
+        console.log(gategory_data.type_id)
     }
     catch (error) {
 
