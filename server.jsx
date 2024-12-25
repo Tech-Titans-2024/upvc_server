@@ -194,18 +194,19 @@ app.get('/louverVarients', async (req, res) => {
 
 app.post('/pricelist', async (req, res) => {
 
-    const { height, width, selectedProduct, selectedType, selectedVarient } = req.body;
+    const { height, width, selectedProduct, selectedType, selectedVarient, brand } = req.body;
     // console.log( value,name,selectedProduct,selectedType,selectedVarient," data w,h")
     // console.log(height, width, "h and wifht")
-
     try {
         const productId = await product.findOne({ product_name: selectedProduct })
         // console.log(productId.product_id);
         // console.log("hejjeb")
+        console.log(brand, "brand");
+
         const gategory_data = await Category.findOne({
             product_id: productId.product_id,
             type: selectedType,
-            varient: selectedVarient
+            varient: selectedVarient,
         });
         console.log(gategory_data.type_id)
         if (gategory_data) {
@@ -213,16 +214,17 @@ app.post('/pricelist', async (req, res) => {
             const getPrice = await Pricelist.findOne({
                 product: gategory_data.type_id,
                 width: width,
-                height: height
+                height: height,
+                variety: brand
 
             })
             if (getPrice) {
-                console.log("price",getPrice.price)
-                res.json({"data":getPrice.price})
+                console.log("price", getPrice.price)
+                res.json({ "data": getPrice.price })
             }
-            else{
+            else {
                 console.log("no data")
-                res.json({"data":10})
+                res.json({ "data": 10 })
             }
         }
 

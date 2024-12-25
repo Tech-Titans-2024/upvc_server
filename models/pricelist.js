@@ -5,8 +5,7 @@ const priceListSchema = new mongoose.Schema({
     ProductPrice_id: {
         type: Number,
         required: true,
-        unique: true,
-
+        unique: true,      
     },
     product: {
         type: Number,
