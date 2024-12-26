@@ -83,7 +83,7 @@ app.post('/varientTypes', async (req, res) => {
 app.get('/louverVarients', async (req, res) => {
 
     try {
-        const productId = await product.findOne({ product_name: 'Louvers' });
+        const productId = await product.findOne({ product_name: 'Louver' });
         const productTypes = await category.find({ product_id: productId.product_id });
         res.json(productTypes);
     }
@@ -192,22 +192,20 @@ app.listen(PORT, () => {
 app.post('/pricelist', async (req, res) => {
 
     const { height, width, selectedProduct, selectedType, selectedVarient, brand } = req.body;
-    console.log( selectedProduct,selectedType,selectedVarient," data w,h")
+    console.log(selectedProduct, selectedType, selectedVarient, " data w,h")
     console.log(height, width, "h and wifht")
     try {
         const productId = await product.findOne({ product_name: selectedProduct })
-        // console.log(productId.product_id);
-        // console.log("hejjeb")
-        console.log(brand, "brand");
-
         const gategory_data = await category.findOne({
             product_id: productId.product_id,
-            type: selectedType,
-            varient: selectedVarient,
+            $or: [
+                { type: selectedType },    
+                { type: { $exists: false } } 
+            ],
+            varient: selectedVarient        
         });
-        console.log(gategory_data.type_id)
         if (gategory_data) {
-            console.log("data type",gategory_data.type_id);
+            console.log("data type", gategory_data.type_id);
             const getPrice = await pricelist.findOne({
                 product: gategory_data.type_id,
                 width: width,
