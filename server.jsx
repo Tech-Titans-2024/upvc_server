@@ -7,7 +7,8 @@ const multer = require('multer');
 const path = require('path');
 const product = require('./models/products');
 const category = require('./models/category');
-const pricelist = require('./models/pricelist')
+const pricelist = require('./models/pricelist');
+const Category = require('./models/category');
 const app = express();
 
 app.use(express.json());
@@ -115,35 +116,33 @@ mongoose.connect(dbURI)
 // Multer setup for storing the file
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './product_images');  // The folder where images will be stored
+        cb(null, './product_images');
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + file.originalname;  // Create a unique file name
+        const uniqueSuffix = Date.now() + '-' + file.originalname;
         cb(null, uniqueSuffix);
     },
 });
 
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
-
-
+// Check if Type ID exists
 app.get('/check-typeid/:typeId', async (req, res) => {
     const { typeId } = req.params;
     try {
-        const category = await category.findOne({ type_id: typeId });
+        const category = await Category.findOne({ type_id: typeId });
         if (category) {
             return res.json({ exists: true });
         } else {
             return res.json({ exists: false });
         }
     } catch (error) {
-        console.error('Error checking typeId:', error);
+        console.error('Error checking Type ID:', error);
         res.status(500).json({ message: 'Failed to check Type ID.', error: error.message });
     }
 });
 
-
-// Endpoint to upload the image
+// Upload Image
 app.post('/upload', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
@@ -156,7 +155,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         }
 
         // Check if the type_id exists in the database
-        const category = await category.findOne({ type_id });
+        const category = await Category.findOne({ type_id });
         if (!category) {
             return res.status(400).json({ message: 'Invalid Type ID.' });
         }
@@ -173,7 +172,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         res.status(500).json({ message: 'Failed to upload file.', error: error.message });
     }
 });
-
 
 
 // Start the server
