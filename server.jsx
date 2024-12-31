@@ -9,6 +9,7 @@ const product = require('./models/products');
 const category = require('./models/category');
 const pricelist = require('./models/pricelist');
 const Category = require('./models/category');
+const Quotation = require('./models/quotation')
 const app = express();
 
 app.use(express.json());
@@ -190,8 +191,9 @@ app.listen(PORT, () => {
 app.post('/pricelist', async (req, res) => {
 
     const { height, width, selectedProduct, selectedType, selectedVarient, brand } = req.body;
+    console.log("h and wifht")
     console.log(height, width, selectedProduct, selectedType, selectedVarient, brand)
-    // console.log(height, width, "h and wifht")
+    
     try {
         const productId = await product.findOne({ product_name: selectedProduct })
         const gategory_data = await category.findOne({
@@ -235,8 +237,51 @@ app.post('/pricelist', async (req, res) => {
 app.post('/quotation-save', async (req, res) =>{
     const { data } = req.body;
     console.log("Data",data)
-    try{
-        res.status(200).json
+    try {
+        const { customer, savedData } = data;
+        console.log("customer", customer)
+        console.log("savedData", savedData)
+        if (!customer || !savedData) {
+            return res.status(400).json({ message: "Missing required data (customer or savedData)." });
+        }
+        const newQuotation = new Quotation({
+            quotation_no: customer.quotation,
+            salesper: customer.salesper,
+            cus_name: customer.cus_name,
+            cus_add: customer.cus_add,
+            cus_con: customer.cus_con,
+            date: customer.date,
+            netTotal: customer.netTotal,
+            gst: customer.gst,
+            gTotal: customer.gTotal,
+            product: savedData.map(item => ({
+                brand: item.brand,
+                product: item.product,
+                type: item.type,
+                varient: item.varient,
+                mesh: item.mesh,
+                width: item.width, 
+                height: item.height,
+                area: item.area, 
+                price: item.price, 
+                glass: item.glass,
+                roller: item.roller,
+                totalPrice: item.totalPrice, 
+                handleType: item.handleType,
+                color: item.color,
+                additionalcost: item.additionalcost, 
+                quantity: item.quantity, 
+                total: item.total 
+            }))
+        });
+
+        console.log("New Quotation Object:", newQuotation);
+        await newQuotation.save();
+        res.status(200).json({
+            message: "Quotation saved successfully",
+            quotation: newQuotation
+        });
+        
     }catch(error){
         res.status(500).json
     }
