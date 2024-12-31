@@ -190,8 +190,8 @@ app.listen(PORT, () => {
 app.post('/pricelist', async (req, res) => {
 
     const { height, width, selectedProduct, selectedType, selectedVarient, brand } = req.body;
-    console.log(selectedProduct, selectedType, selectedVarient, " data w,h")
-    console.log(height, width, "h and wifht")
+    console.log(height, width, selectedProduct, selectedType, selectedVarient, brand)
+    // console.log(height, width, "h and wifht")
     try {
         const productId = await product.findOne({ product_name: selectedProduct })
         const gategory_data = await category.findOne({
@@ -202,9 +202,9 @@ app.post('/pricelist', async (req, res) => {
             ],
             varient: selectedVarient        
         });
-        console.log("Cate:", gategory_data)
+        // console.log("Cate:", gategory_data)
         if (gategory_data) {
-            console.log("data type", gategory_data.type_id, width, height, brand);
+            // console.log("data type", gategory_data.type_id, width, height, brand);
             const type = gategory_data.type_id;
             const getPrice = await pricelist.findOne({
                 product: type,
@@ -225,7 +225,7 @@ app.post('/pricelist', async (req, res) => {
             }
         }
 
-        console.log(gategory_data.type_id)
+        // console.log(gategory_data.type_id)
     }
     catch (error) {
 
