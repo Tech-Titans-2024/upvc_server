@@ -202,22 +202,26 @@ app.post('/pricelist', async (req, res) => {
             ],
             varient: selectedVarient        
         });
+        console.log("Cate:", gategory_data)
         if (gategory_data) {
-            console.log("data type", gategory_data.type_id);
+            console.log("data type", gategory_data.type_id, width, height, brand);
+            const type = gategory_data.type_id;
             const getPrice = await pricelist.findOne({
-                product: gategory_data.type_id,
+                product: type,
                 width: width,
                 height: height,
                 variety: brand
 
             })
+            const img = gategory_data.image;
             if (getPrice) {
-                console.log("price", getPrice.price)
-                res.json({ "data": getPrice.price })
+                
+                console.log("price", getPrice.price, img)
+                res.json({ "data": getPrice.price, img })
             }
             else {
                 console.log("no data")
-                res.json({ "data": 10 })
+                res.json({ "data": 10, img })
             }
         }
 
@@ -226,5 +230,14 @@ app.post('/pricelist', async (req, res) => {
     catch (error) {
 
     }
+})
 
+app.post('/quotation-save', async (req, res) =>{
+    const { data } = req.body;
+    console.log("Data",data)
+    try{
+        res.status(200).json
+    }catch(error){
+        res.status(500).json
+    }
 })
