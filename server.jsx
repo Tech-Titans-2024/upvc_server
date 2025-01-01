@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const User = require('./models/login');
 const product = require('./models/products');
 const category = require('./models/category');
 const pricelist = require('./models/pricelist');
@@ -20,6 +21,33 @@ app.use(cors({
 }));
 
 //-------------------------------------------------------------------------------------------------------
+
+// Login
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: "Invalid username or password." });
+        }
+
+        if (user.password !== password) {
+            return res.status(400).json({ success: false, message: "Invalid username or password." });
+        }
+
+        res.json({ success: true, message: "Login successfull" });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
+});
+
+
+//-------------------------------------------------------------------------------------------------------
+
 
 // Fetch Types of Doors and Windows
 
