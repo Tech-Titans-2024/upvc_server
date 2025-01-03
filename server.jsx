@@ -224,6 +224,9 @@ app.post('/pricelist', async (req, res) => {
     
     try {
         const productId = await product.findOne({ product_name: selectedProduct })
+        console.log(productId.product_id,"Product ID")
+        console.log(selectedType,"Type",selectedVarient,brand);
+
         const gategory_data = await category.findOne({
             product_id: productId.product_id,
             $or: [
@@ -233,6 +236,9 @@ app.post('/pricelist', async (req, res) => {
             varient: selectedVarient        
         });
         // console.log("Cate:", gategory_data)
+        // console.log("TYPE ID",gategory_data.type_id);
+        console.log("TYPE ID",gategory_data);
+
         if (gategory_data) {
             // console.log("data type", gategory_data.type_id, width, height, brand);
             const type = gategory_data.type_id;
@@ -251,7 +257,7 @@ app.post('/pricelist', async (req, res) => {
             }
             else {
                 console.log("no data")
-                res.json({ "data": 10, img })
+                res.json({ "data": 10,})
             }
         }
 
