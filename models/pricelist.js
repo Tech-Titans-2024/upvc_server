@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-const Product = require('./products');
 
 const priceListSchema = new mongoose.Schema({
-    ProductPrice_id: {
+    pro_price_id: {
         type: Number,
         required: true,
         unique: true,      
@@ -16,11 +15,11 @@ const priceListSchema = new mongoose.Schema({
         required: true,
     },
     width: {
-        type: String,
+        type: Number,
         required: true
     },
     heigth: {
-        type: String,
+        type: Number,
         required: true
     },
     variety: {
@@ -28,7 +27,7 @@ const priceListSchema = new mongoose.Schema({
         required: true,
     },
     unit: {
-        type: String,
+        type: Number,
         required: true,
     },
 });
