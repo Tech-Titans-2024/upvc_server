@@ -252,8 +252,8 @@ app.post('/quotation-save', async (req, res) => {
             message: "Quotation Saved Successfully",
             quotation: newQuotation
         })
-    } 
-    catch (error) {}
+    }
+    catch (error) { }
 })
 
 // ------------------------------------------------------------------------------------------------------------------
@@ -266,11 +266,11 @@ app.get('/check-typeid/:typeId', async (req, res) => {
         const category = await Category.findOne({ type_id: typeId });
         if (category) {
             return res.json({ exists: true });
-        } 
+        }
         else {
             return res.json({ exists: false });
         }
-    } 
+    }
     catch (error) {
         console.error('Error checking Type ID:', error);
         res.status(500).json({ message: 'Failed to check Type ID.', error: error.message });
@@ -282,8 +282,7 @@ app.get('/check-typeid/:typeId', async (req, res) => {
 
 app.post('/upload', upload.single('image'), async (req, res) => {
 
-    try 
-    {
+    try {
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded.' });
         }
@@ -304,9 +303,52 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         await category.save();
 
         res.status(200).json({ message: 'Image uploaded and saved successfully!', imagePath });
-    } 
+    }
     catch (error) {
         console.error('Error uploading file:', error);
         res.status(500).json({ message: 'Failed to upload file.', error: error.message });
     }
-})
+});
+
+//-----------------------------------------------------------------------------------------------------
+
+app.get('/salesmans', async (req, res) => {
+    try {
+        const salesmanData = await User.find({ username: { $ne: 'ADMIN' } })
+            .select('username');
+        res.json(salesmanData);
+    } catch (error) {
+        console.error('Error fetching salesmen:', error);
+        res.status(500).json({ message: 'Error fetching salesmen data' });
+    }
+});
+
+//-----------------------------------------------------------------------------------------------------
+
+app.get('/quotationNo', async (req, res) => {
+    try {
+        const result = await Quotation.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    maxQuotationNo: { $max: "$quotation_no" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    maxQuotationNo: 1
+                }
+            }
+        ]);
+
+        if (result.length > 0) {
+            res.json(result[0].maxQuotationNo);
+        } else {
+            res.json(null);
+        }
+    } catch (err) {
+        console.error("Error fetching max quotation number:", err);
+        res.status(500).send("Internal Server Error");
+    }
+});
