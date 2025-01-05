@@ -9,7 +9,9 @@ const User = require('./models/login');
 const Product = require('./models/products');
 const pricelist = require('./models/pricelist');
 const Category = require('./models/category');
-const Quotation = require('./models/quotation')
+const Quotation = require('./models/quotation');
+const Order = require('./models/order');
+
 const app = express();
 
 app.use(express.json());
@@ -156,7 +158,6 @@ app.get('/louverVarients', async (req, res) => {
 // ------------------------------------------------------------------------------------------------------------------
 
 // Price List for Products
-
 app.post('/pricelist', async (req, res) => {
 
     const { height, width, selectedProduct, selectedType, selectedVarient, brand } = req.body;
@@ -174,25 +175,21 @@ app.post('/pricelist', async (req, res) => {
             varient: selectedVarient
         })
 
-        if (category_data) {
+        const img = category_data.image;
 
+        if (category_data) {
             const type = category_data.type_id;
             const getPrice = await pricelist.findOne({
                 product: type,
                 width: width,
                 height: height,
                 variety: brand
-
             })
-
-            const img = category_data.image;
-
             if (getPrice) {
                 res.json({ "data": getPrice.price, img })
-                console.log(getPrice.price)
             }
             else {
-                res.json({ "data": 300 })
+                res.json({ "data": 300, img })
             }
         }
     }
@@ -350,5 +347,34 @@ app.get('/quotationNo', async (req, res) => {
     } catch (err) {
         console.error("Error fetching max quotation number:", err);
         res.status(500).send("Internal Server Error");
+    }
+});
+
+
+//-----------------------------------------------------------------------------------------------------
+
+
+app.get('/quotation',async (req,res)=>{
+    try{
+        const quotations = await Quotation.find();
+        res.json(quotations);
+    }
+    catch(error){
+        console.error(error);
+    }
+})
+
+
+//-----------------------------------------------------------------------------------------------------
+
+
+app.post('/orderconfirm', async (req, res) => {
+    
+    try {
+        const newOrder = new Order(req.body);
+        await newOrder.save();
+        res.status(201).send('Order Confirmed successfully');
+    } catch (error) {
+        res.status(500).send('Error confirming order');
     }
 });
