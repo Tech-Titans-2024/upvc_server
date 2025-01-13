@@ -378,3 +378,37 @@ app.post('/orderconfirm', async (req, res) => {
         res.status(500).send('Error confirming order');
     }
 });
+
+//-----------------------------------------------------------------------------------------------------
+
+
+// Update Quotation Products API
+app.put('/quotation/:id', async (req, res) => {
+    const { id } = req.params; // Extract the quotation ID from the URL
+    const { product } = req.body; // Extract the updated product details from the request body    
+
+    try {
+        // Validate if the quotation exists
+        const existingQuotation = await Quotation.findById(id);
+        if (!existingQuotation) {
+            return res.status(404).json({ message: 'Quotation not found' });
+        }
+
+        // Update the product details
+        existingQuotation.product = product;
+
+        // Save the updated quotation to the database
+        const updatedQuotation = await existingQuotation.save();
+
+        return res.status(200).json({
+            message: 'Quotation updated successfully',
+            data: updatedQuotation,
+        });
+    } catch (error) {
+        console.error('Error updating the quotation:', error);
+        return res.status(500).json({
+            message: 'An error occurred while updating the quotation',
+            error: error.message,
+        });
+    }
+});
