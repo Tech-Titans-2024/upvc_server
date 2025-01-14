@@ -412,3 +412,26 @@ app.put('/quotation/:id', async (req, res) => {
         });
     }
 });
+
+//-----------------------------------------------------------------------------------------------------
+
+// Delete Quotation API
+
+app.delete('/quotation/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const quotation = await Quotation.findByIdAndDelete(id);
+        if (!quotation) {
+            return res.status(404).json({ message: 'Quotation not found' });
+        }
+
+        return res.json({ message: 'Quotation deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting quotation:', error);
+        return res.status(500).json({
+            message: 'An error occurred while deleting the quotation',
+            error: error.message,
+        });
+    }
+});
