@@ -41,9 +41,7 @@ const quotationSchema = new mongoose.Schema({
             area: { type: String },
             price: { type: String },
             glass: { type: String },
-            roller: { type: String },
             totalPrice: { type: String },
-            handleType: { type: String },
             color: { type: String },
             additionalcost: { type: String },
             quantity: { type: String },
@@ -53,4 +51,5 @@ const quotationSchema = new mongoose.Schema({
 }, { strict: false }); 
 
 const Quotation = mongoose.model('Quotation', quotationSchema);
+
 module.exports = Quotation;

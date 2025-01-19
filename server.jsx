@@ -1,10 +1,10 @@
-require('dotenv').config();
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
+require('dotenv').config();
 const path = require('path');
+
 const User = require('./models/login');
 const Product = require('./models/products');
 const pricelist = require('./models/pricelist');
@@ -32,6 +32,7 @@ mongoose.connect(dbURI)
     .catch((err) => console.error('Failed to connect to MongoDB:', err));
 
 const PORT = process.env.PORT || 5001;
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
@@ -76,7 +77,6 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error." });
     }
 })
-
 
 //-------------------------------------------------------------------------------------------------------
 
@@ -158,14 +158,13 @@ app.get('/louverVarients', async (req, res) => {
 // ------------------------------------------------------------------------------------------------------------------
 
 // Price List for Products
+
 app.post('/pricelist', async (req, res) => {
 
     const { height, width, selectedProduct, selectedType, selectedVarient, brand } = req.body;
 
     try {
-
         const productId = await Product.findOne({ product_name: selectedProduct })
-
         const category_data = await Category.findOne({
             product_id: productId.product_id,
             $or: [
@@ -235,9 +234,7 @@ app.post('/quotation-save', async (req, res) => {
                 area: item.area,
                 price: item.price,
                 glass: item.glass,
-                roller: item.roller,
                 totalPrice: item.totalPrice,
-                handleType: item.handleType,
                 color: item.color,
                 additionalcost: item.additionalcost,
                 quantity: item.quantity,
@@ -276,7 +273,6 @@ app.get('/check-typeid/:typeId', async (req, res) => {
 
 // ------------------------------------------------------------------------------------------------------------------
 
-
 app.post('/upload', upload.single('image'), async (req, res) => {
 
     try {
@@ -305,7 +301,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         console.error('Error uploading file:', error);
         res.status(500).json({ message: 'Failed to upload file.', error: error.message });
     }
-});
+})
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -314,11 +310,12 @@ app.get('/salesmans', async (req, res) => {
         const salesmanData = await User.find({ username: { $ne: 'ADMIN' } })
             .select('username');
         res.json(salesmanData);
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Error fetching salesmen:', error);
         res.status(500).json({ message: 'Error fetching salesmen data' });
     }
-});
+})
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -348,28 +345,24 @@ app.get('/quotationNo', async (req, res) => {
         console.error("Error fetching max quotation number:", err);
         res.status(500).send("Internal Server Error");
     }
-});
-
+})
 
 //-----------------------------------------------------------------------------------------------------
 
-
-app.get('/quotation',async (req,res)=>{
-    try{
+app.get('/quotation', async (req, res) => {
+    try {
         const quotations = await Quotation.find();
         res.json(quotations);
     }
-    catch(error){
+    catch (error) {
         console.error(error);
     }
 })
 
-
 //-----------------------------------------------------------------------------------------------------
 
-
 app.post('/orderconfirm', async (req, res) => {
-    
+
     try {
         const newOrder = new Order(req.body);
         await newOrder.save();
@@ -377,47 +370,46 @@ app.post('/orderconfirm', async (req, res) => {
     } catch (error) {
         res.status(500).send('Error confirming order');
     }
-});
+})
 
 //-----------------------------------------------------------------------------------------------------
 
-
 // Update Quotation Products API
+
 app.put('/quotation/:id', async (req, res) => {
-    const { id } = req.params; // Extract the quotation ID from the URL
-    const { product } = req.body; // Extract the updated product details from the request body    
+
+    const { id } = req.params;
+    const { product } = req.body;
 
     try {
-        // Validate if the quotation exists
         const existingQuotation = await Quotation.findById(id);
         if (!existingQuotation) {
             return res.status(404).json({ message: 'Quotation not found' });
         }
 
-        // Update the product details
         existingQuotation.product = product;
 
-        // Save the updated quotation to the database
         const updatedQuotation = await existingQuotation.save();
 
         return res.status(200).json({
             message: 'Quotation updated successfully',
             data: updatedQuotation,
         });
-    } catch (error) {
-        console.error('Error updating the quotation:', error);
+    } 
+    catch (error) {
+        console.error('Error updating the Quotation :', error);
         return res.status(500).json({
-            message: 'An error occurred while updating the quotation',
-            error: error.message,
-        });
+            message: 'An error occurred while updating the Quotation', error: error.message,
+        })
     }
-});
+})
 
 //-----------------------------------------------------------------------------------------------------
 
 // Delete Quotation API
 
 app.delete('/quotation/:id', async (req, res) => {
+
     const { id } = req.params;
 
     try {
@@ -427,11 +419,11 @@ app.delete('/quotation/:id', async (req, res) => {
         }
 
         return res.json({ message: 'Quotation deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting quotation:', error);
+    } 
+    catch (error) {
+        console.error('Error deleting Quotation:', error);
         return res.status(500).json({
-            message: 'An error occurred while deleting the quotation',
-            error: error.message,
-        });
+            message: 'An error occurred while deleting the Quotation', error: error.message,
+        })
     }
-});
+})
