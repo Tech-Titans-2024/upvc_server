@@ -198,7 +198,120 @@ app.post('/pricelist', async (req, res) => {
     }
 })
 
+
+app.get('/pricelistdata', async (req, res) => {
+    try {
+        const priceData = await pricelist.find();
+        const result = await Promise.all(
+            priceData.map(async (item) => {
+                const category = await Category.findOne({ type_id: item.product });
+                if (!category) {
+                    throw new Error(`Category not found for type_id: ${item.product}`);
+                }
+                return {
+
+                    width: item.width,
+                    variety: item.variety,
+                    type: category.type || "NA",
+                    variant: category.varient || "NA",
+                    price: item.price,
+                    height: item.height,
+                    pro_price_id: item.pro_price_id
+                };
+            })
+        );
+        res.json(result);
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+
+
+
+app.post('/editprice', async (req, res) => {
+    const { editData } = req.body;
+    // console.log(editData,"DATA")
+    console.log(editData.pro_price_id, "ID")
+    const id = Number(editData.pro_price_id)
+    // console.log("STRING ",typeof id)
+
+    const existData = await pricelist.find({
+        pro_price_id: id
+    })
+    if (existData) {
+        try {
+            const updatePrice = await pricelist.updateOne({
+                pro_price_id: id
+            },
+                { $set: { price: editData.price } })
+            {
+                price: editData.price
+            }
+            res.json({ "Message": "Price Updated" })
+        } catch (err) {
+            res.json({ "Message": "Data NOt updated" })
+        }
+    }
+    else {
+        res.json({ "Message": "Price Data Not exist" })
+    }
+});
+
+//-----------------------------------
+
+app.post('/deleteprice', async (req, res) => {
+    const { deleteData } = req.body;
+    try {
+        const deleteprice = await pricelist.deleteOne({
+            pro_price_id: deleteData.pro_price_id
+        })
+        res.json({ "Message": "Price Date Deleted" })
+    } catch (err) {
+        res.json({ "Message": "Data Not Deleted" })
+    }
+})
+
 // ------------------------------------------------------------------------------------------------------------------
+
+
+//-----------------------------------
+app.get('/salespersons', async (req, res) => {
+    try {
+        const salesPerData = await User.find({
+
+        })
+        if (salesPerData) {
+            res.json(salesPerData)
+        }
+        else {
+            res.json({ "Message": "Not FOunt" })
+        }
+    } catch (err) {
+        res.json({ "Message": "Not FOunt" })
+
+    }
+})
+//--------------------------------------------
+app.get('/customers', async (req, res) => {
+    try {
+        const customerData = await Order.find({
+
+        })
+        if (customerData) {
+            res.json(customerData)
+        }
+        else {
+            res.json({ "Message": "Not FOunt" })
+
+        }
+    } catch (err) {
+        res.json({ "Message": "Not FOunt" })
+
+    }
+})
+
 
 // Quotation Save
 
