@@ -423,7 +423,7 @@ app.get('/salesmans', async (req, res) => {
         const salesmanData = await User.find({ username: { $ne: 'ADMIN' } })
             .select('username');
         res.json(salesmanData);
-    } 
+    }
     catch (error) {
         console.error('Error fetching salesmen:', error);
         res.status(500).json({ message: 'Error fetching salesmen data' });
@@ -508,7 +508,7 @@ app.put('/quotation/:id', async (req, res) => {
             message: 'Quotation updated successfully',
             data: updatedQuotation,
         });
-    } 
+    }
     catch (error) {
         console.error('Error updating the Quotation :', error);
         return res.status(500).json({
@@ -532,7 +532,7 @@ app.delete('/quotation/:id', async (req, res) => {
         }
 
         return res.json({ message: 'Quotation deleted successfully' });
-    } 
+    }
     catch (error) {
         console.error('Error deleting Quotation:', error);
         return res.status(500).json({
@@ -540,3 +540,91 @@ app.delete('/quotation/:id', async (req, res) => {
         })
     }
 })
+
+//-----------------------------------------------------------------------------------------------------
+
+
+// Add a new salesperson
+app.post("/salespersons", async (req, res) => {
+    const { username, password, number, name, address } = req.body;
+
+    // Validation
+    if (!username || !password || !number || !name || !address) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        // Check if username already exists
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ error: "Username already exists" });
+        }
+
+        // Create new salesperson
+        const newUser = new User({
+            username,
+            password,
+            number,
+            name,
+            address,
+        });
+
+        await newUser.save();
+        res.status(201).json(newUser);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to add salesperson" });
+    }
+});
+//-----------------------------------------------------------------------------------------------------
+
+// Delete the sales Person
+
+app.delete('/salespersons/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await User.findByIdAndDelete(id); // Assuming you're using Mongoose
+        if (!result) {
+            return res.status(404).json({ error: "Salesperson not found." });
+        }
+        res.status(200).json({ message: "Salesperson deleted successfully." });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to delete salesperson." });
+    }
+});
+
+
+//-----------------------------------------------------------------------------------------------------
+
+// Edit the sales Person
+
+
+app.put('/salespersons/:id', async (req, res) => {
+    const { username, name, number, address } = req.body;
+
+    // Validate fields
+    if (!username || !name || !number || !address) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        // Ensure that you're using the correct model (e.g., SalesPerson)
+        const updatedPerson = await User.findByIdAndUpdate(
+            req.params.id, 
+            { username, name, number, address }, 
+            { new: true, runValidators: true } 
+        );
+
+        if (!updatedPerson) {
+            return res.status(404).json({ error: "Salesperson not found" });
+        }
+
+        // Return the updated document
+        res.status(200).json(updatedPerson);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to update salesperson" });
+    }
+});
