@@ -628,3 +628,53 @@ app.put('/salespersons/:id', async (req, res) => {
         res.status(500).json({ error: "Failed to update salesperson" });
     }
 });
+
+//-----------------------------------------------------------------------------------------------------
+
+
+// Update a customer
+app.put("/customers/:id", async (req, res) => {
+    const { id } = req.params;
+    const { cus_name, cus_con, cus_add } = req.body;
+    console.log(cus_name, cus_con, cus_add);
+
+    try {
+        // Use `findByIdAndUpdate` to update the customer by ID
+        const updatedCustomer = await Order.findByIdAndUpdate(id, { cus_name, cus_con, cus_add }, { new: true });
+        
+        if (!updatedCustomer) {
+            return res.status(404).json({ error: "Customer not found" });
+        }
+        
+        res.status(200).json({
+            message: "Customer updated successfully",
+            customer: updatedCustomer
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to update customer" });
+    }
+});
+
+
+
+//-----------------------------------------------------------------------------------------------------
+
+
+app.delete("/customers/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletedCustomer = await Order.findByIdAndDelete(id);
+        
+        if (!deletedCustomer) {
+            return res.status(404).json({ error: "Customer not found" });
+        }
+        
+        res.status(200).json({ message: "Customer deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to delete customer" });
+    }
+});
+
+
+
