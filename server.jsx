@@ -485,6 +485,15 @@ app.post('/orderconfirm', async (req, res) => {
     }
 })
 
+app.get('/confirmed-orders', async (req, res) => {
+    try {
+        const orders = await Order.find({}, 'quotation_no');
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 //-----------------------------------------------------------------------------------------------------
 
 // Update Quotation Products API
