@@ -602,10 +602,10 @@ app.delete('/salespersons/:id', async (req, res) => {
 
 
 app.put('/salespersons/:id', async (req, res) => {
-    const { username, name, number, address } = req.body;
+    const { username,password, name, number, address } = req.body;
 
     // Validate fields
-    if (!username || !name || !number || !address) {
+    if (!username ||!password || !name || !number || !address) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -613,7 +613,7 @@ app.put('/salespersons/:id', async (req, res) => {
         // Ensure that you're using the correct model (e.g., SalesPerson)
         const updatedPerson = await User.findByIdAndUpdate(
             req.params.id, 
-            { username, name, number, address }, 
+            { username,password,name, number, address }, 
             { new: true, runValidators: true } 
         );
 
@@ -636,7 +636,7 @@ app.put('/salespersons/:id', async (req, res) => {
 app.put("/customers/:id", async (req, res) => {
     const { id } = req.params;
     const { cus_name, cus_con, cus_add } = req.body;
-    console.log(cus_name, cus_con, cus_add);
+    // console.log(cus_name, cus_con, cus_add);
 
     try {
         // Use `findByIdAndUpdate` to update the customer by ID
