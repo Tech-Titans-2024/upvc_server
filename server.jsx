@@ -452,7 +452,7 @@ app.get('/quotationNo', async (req, res) => {
         if (result.length > 0) {
             res.json(result[0].maxQuotationNo);
         } else {
-            res.json(null);
+            res.json("Q_0");
         }
     } catch (err) {
         console.error("Error fetching max quotation number:", err);

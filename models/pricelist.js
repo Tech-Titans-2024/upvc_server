@@ -18,7 +18,7 @@ const priceListSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    heigth: {
+    height: {
         type: Number,
         required: true
     },
